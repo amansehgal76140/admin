@@ -3,7 +3,7 @@ const pool = require("../config/database");
 module.exports = {
   adminLogin: (data, adminLoginCallback) => {
     pool.query(
-      `Select * From Admin where email = ?`,
+      `Select * From admin where email = ?`,
       [data.email],
       (err, results, fields) => {
         if (err) return adminLoginCallback(err);
@@ -14,7 +14,7 @@ module.exports = {
 
   addProjectRequisition: (data, addRequisitionCallback) => {
     pool.query(
-      `Insert into Project(projectId, toName, name, subject, remarks, status) values(?,?,?,?,?,?)`,
+      `Insert into project(projectId, toName, name, subject, remarks, status) values(?,?,?,?,?,?)`,
       [
         data.projectId,
         data.toName,
@@ -32,7 +32,7 @@ module.exports = {
 
   addMaterialsDetails: (data, addMaterialDetailsCallback) => {
     pool.query(
-      `Insert into Requisitions(description, size, quantity, projectId) values ?`,
+      `Insert into requisitions(description, size, quantity, projectId) values ?`,
       [
         data.materials.map((requisition) => [
           requisition.description,
@@ -50,7 +50,7 @@ module.exports = {
 
   updateStatus: (data, updateStatusCallback) => {
     pool.query(
-      `Update Project set status = ? where projectId = ? `,
+      `Update project set status = ? where projectId = ? `,
       ["Approved", data.projectId],
       (err, results, fields) => {
         if (err) return updateStatusCallback(err);
@@ -61,7 +61,7 @@ module.exports = {
 
   getRequisitions: (data, getAllRequisitionsCallback) => {
     pool.query(
-      `Select * From Requisitions where projectId = ?`,
+      `Select * From requisitions where projectId = ?`,
       [data.projectId],
       (err, results, fields) => {
         if (err) return getAllRequisitionsCallback(err);
@@ -72,7 +72,7 @@ module.exports = {
 
   getAllRequisitionDetails: (data, getAllRequisitionsDataCallback) => {
     pool.query(
-      `Select * From Project where status In(?)`,
+      `Select * From project where status In(?)`,
       [data.status],
       (err, results, fields) => {
         if (err) getAllRequisitionsDataCallback(err);
@@ -83,7 +83,7 @@ module.exports = {
 
   deleteRequisitionService: (data, deleteRequisitionCallback) => {
     pool.query(
-      `Delete From Project where projectId = ?`,
+      `Delete From project where projectId = ?`,
       [data.projectId],
       (err, results, fields) => {
         if (err) deleteRequisitionCallback(err);
@@ -94,7 +94,7 @@ module.exports = {
 
   addSupplier: (data, addNewSupplierCallback) => {
     pool.query(
-      `Insert into Supplier values(?,?,?,?,?,?,?,?)`,
+      `Insert into supplier values(?,?,?,?,?,?,?,?)`,
       [
         data.name,
         data.email,
@@ -113,14 +113,14 @@ module.exports = {
   },
 
   supplierDetails: (getSupplierDetailsCallback) => {
-    pool.query(`Select * From Supplier`, [], (err, results, fields) => {
+    pool.query(`Select * From supplier`, [], (err, results, fields) => {
       if (err) return getSupplierDetailsCallback(err);
       return getSupplierDetailsCallback(null, results);
     });
   },
 
   supplierEmails: (getSupplierEmailsCallback) => {
-    pool.query(`Select email from Supplier`, [], (err, results, fields) => {
+    pool.query(`Select email from supplier`, [], (err, results, fields) => {
       if (err) return getSupplierEmailsCallback(err);
       return getSupplierEmailsCallback(null, results);
     });
@@ -128,7 +128,7 @@ module.exports = {
 
   deleteSupplier: (supplierId, deleteSupplierCallback) => {
     pool.query(
-      `Delete from Supplier where supplierId = ?`,
+      `Delete from supplier where supplierId = ?`,
       [supplierId],
       (err, results, fields) => {
         if (err) return deleteSupplierCallback(err);
@@ -139,7 +139,7 @@ module.exports = {
 
   updateSupplier: (data, updateSupplierDetailsCallback) => {
     pool.query(
-      `Update Supplier set name = ?, email = ?, phone = ?, company_name = ?, country_name = ?, address=? 
+      `Update supplier set name = ?, email = ?, phone = ?, company_name = ?, country_name = ?, address=? 
       where supplierId = ?`,
       [
         data.name,
@@ -159,7 +159,7 @@ module.exports = {
 
   getSupplier: (supplierId, getSupplierCallback) => {
     pool.query(
-      `Select * from Supplier where supplierId = ?`,
+      `Select * from supplier where supplierId = ?`,
       [supplierId],
       (err, results, fields) => {
         if (err) return getSupplierCallback(err);
@@ -173,7 +173,7 @@ module.exports = {
     supplierQuoteDetailsControllerCallback
   ) => {
     pool.query(
-      `Insert into SupplierQuote(name,email,company,country,address,message,mobile) values(?,?,?,?,?,?,?)`,
+      `Insert into supplierquote(name,email,company,country,address,message,mobile) values(?,?,?,?,?,?,?)`,
       [
         data.name,
         data.email,
@@ -193,7 +193,7 @@ module.exports = {
 
   submitQuoteService: (data, submitQuoteControllerCallback) => {
     pool.query(
-      `Insert into SupplierQuoteDetails(itemId,id,unitPrice,projectId) values ?`,
+      `Insert into supplierquotedetails(itemId,id,unitPrice,projectId) values ?`,
       [
         data.quote.map((details) => [
           details.itemId,
@@ -211,7 +211,7 @@ module.exports = {
 
   quotationProjectService: (quotationProjectCallback) => {
     pool.query(
-      `Select projectId,name,subject,status from Project where projectId In
+      `Select projectId,name,subject,status from project where projectId In
       (Select distinct projectId from supplierquotedetails)`,
       [],
       (err, results, fields) => {
@@ -237,7 +237,7 @@ module.exports = {
 
   companyDetailsService: (data, companyDetailsCallback) => {
     pool.query(
-      `Select * From SupplierQuote where id = ?`,
+      `Select * From supplierquote where id = ?`,
       [data.id],
       (err, results, fields) => {
         if (err) return companyDetailsCallback(err);
@@ -248,7 +248,7 @@ module.exports = {
 
   createOrderService: (data, createOrderCallback) => {
     pool.query(
-      `Insert into Orders(id) values(?)`,
+      `Insert into orders(id) values(?)`,
       [data.id],
       (err, results, fields) => {
         if (err) return createOrderCallback(err);
@@ -259,7 +259,7 @@ module.exports = {
 
   orderDetailsService: (data, orderDetailsCallback) => {
     pool.query(
-      `Insert into OrderDetails(description,quantity,size,unitPrice,orderId,itemId) values ?`,
+      `Insert into orderdetails(description,quantity,size,unitPrice,orderId,itemId) values ?`,
       [
         data.materials.map((requisition) => [
           requisition.description,
@@ -293,7 +293,7 @@ module.exports = {
 
   getprojectOrderService: (data, quotationProjectCallback) => {
     pool.query(
-      `Select * from Project where projectId In
+      `Select * from project where projectId In
       (Select distinct projectId from supplierquotedetails where id = ?)`,
       [data.id],
       (err, results, fields) => {
@@ -305,7 +305,7 @@ module.exports = {
 
   getOrderMaterialService: (data, getMaterialsCallback) => {
     pool.query(
-      `Select * From OrderDetails where orderId = ?`,
+      `Select * From orderdetails where orderId = ?`,
       [data.orderId],
       (err, results, fields) => {
         if (err) return getMaterialsCallback(err);

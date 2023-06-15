@@ -29,9 +29,11 @@ const { sign } = require("jsonwebtoken");
 
 module.exports = {
   checkLogin: (req, res) => {
+    console.log("Hello");
     const data = req.body;
     adminLogin(data, (err, results) => {
       if (err) {
+        console.log(err);
         return res.status(500).json({
           success: 0,
           message: "Invalid Request",
