@@ -4,12 +4,6 @@ const {
   addMaterialsDetails,
   updateStatus,
   getRequisitions,
-  addSupplier,
-  supplierDetails,
-  supplierEmails,
-  deleteSupplier,
-  updateSupplier,
-  getSupplier,
   getAllRequisitionDetails,
   deleteRequisitionService,
   supplierQuoteDetailsService,
@@ -22,7 +16,10 @@ const {
   getOrdersService,
   getprojectOrderService,
   getOrderMaterialService,
+  getQuoteDetailsService,
+  updateQuotePriceService,
 } = require("./Admin.service");
+const { generateUniqueId } = require("./utils/GenerateId");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
 const { sign } = require("jsonwebtoken");
@@ -68,14 +65,7 @@ module.exports = {
   },
 
   addNewProjectRequisition: (req, res) => {
-    var today = new Date();
-    var date =
-      today.getFullYear() + "" + (today.getMonth() + 1) + "" + today.getDate();
-    var time =
-      today.getHours() + "" + today.getMinutes() + "" + today.getSeconds();
-    var dateTime =
-      date + "" + time + "" + Math.floor(Math.random() * 100 + 1) + "_";
-    const projectId = dateTime;
+    const projectId = generateUniqueId();
 
     const data = { ...req.body, projectId };
 
@@ -176,166 +166,6 @@ module.exports = {
       return res.status(200).json({
         success: 1,
         message: "Requisition Deleted Successfully",
-      });
-    });
-  },
-
-  addNewSupplier: (req, res) => {
-    console.log("Request comes");
-    var today = new Date();
-    var date =
-      today.getFullYear() + "" + (today.getMonth() + 1) + "" + today.getDate();
-    var time =
-      today.getHours() + "" + today.getMinutes() + "" + today.getSeconds();
-    var dateTime =
-      date + "" + time + "" + Math.floor(Math.random() * 100 + 1) + "_";
-    const supplierId = dateTime;
-    const fileName = supplierId + req.files.company_details.name;
-    const file = req.files.company_details;
-    console.log(req.files.company_details.type);
-    let uploadPath = __dirname + "/uploads/" + fileName;
-    file.mv(uploadPath, (err) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({
-          success: 0,
-          message: "Unable to Upload File",
-        });
-      }
-      const data = { ...req.body, fileName: fileName, supplierId: supplierId };
-      console.log(data);
-      addSupplier(data, (err, results) => {
-        if (err) {
-          console.log(err);
-          return res.status(500).json({
-            success: 0,
-            message: "Bad Request",
-          });
-        }
-        return res.status(200).json({
-          success: 1,
-          supplierId,
-          fileName,
-        });
-      });
-    });
-  },
-
-  getSupplierDetails: (req, res) => {
-    supplierDetails((err, results) => {
-      if (err) {
-        return res.status(500).json({
-          success: 0,
-          message: "Bad Request",
-        });
-      }
-      console.log("Hello");
-      return res.status(200).json({
-        success: 1,
-        suppliers: results,
-      });
-    });
-  },
-
-  getSupplierCompanyFile: (req, res) => {
-    const data = req.params;
-    const path = __dirname + "/uploads/" + data.fileName;
-    if (fs.existsSync(path)) {
-      return res.sendFile(path);
-    }
-    return res.status(500).json({
-      success: 0,
-      message: "FileName not exist",
-    });
-  },
-
-  getSupplierEmails: (req, res) => {
-    supplierEmails((err, results) => {
-      if (err) {
-        return res.status(500).json({
-          success: 0,
-          message: "Server Error",
-        });
-      }
-      return res.status(200).json({
-        success: 1,
-        emails: results,
-      });
-    });
-  },
-
-  deleteSupplierDetails: (req, res) => {
-    console.log("delete Supplier");
-    console.log(req.body);
-    const { supplierId, fileName } = req.body;
-    const path = __dirname + "/uploads/" + fileName;
-    if (fs.existsSync(path)) {
-      fs.unlink(path, (err) => {
-        if (err)
-          return res.status(500).json({
-            success: 0,
-            message: "File Not Exists",
-          });
-        console.log("File Deleted Successfully");
-        deleteSupplier(supplierId, (err, results) => {
-          if (err) {
-            return res.status(500).json({
-              success: 0,
-              message: "Bad Request",
-            });
-          }
-          return res.status(200).json({
-            success: 0,
-            message: "Supplier Deleted Successfully",
-          });
-        });
-      });
-    } else {
-      deleteSupplier(supplierId, (err, results) => {
-        if (err) {
-          return res.status(500).json({
-            success: 0,
-            message: "Bad Request",
-          });
-        }
-        return res.status(200).json({
-          success: 0,
-          message: "Supplier Deleted Successfully",
-        });
-      });
-    }
-  },
-
-  updateSupplierDetails: (req, res) => {
-    const data = req.body;
-    console.log("update supplier details");
-    updateSupplier(data, (err, results) => {
-      if (err) {
-        return res.status(500).json({
-          success: 0,
-          message: "Bad Request",
-        });
-      }
-      return res.status(200).json({
-        success: 1,
-        message: "Updated Record Successfully",
-      });
-    });
-  },
-
-  getCurrentSupplier: (req, res) => {
-    const data = req.params.supplierId;
-    getSupplier(data, (err, results) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({
-          success: 0,
-          message: "Bad Request",
-        });
-      }
-      return res.status(200).json({
-        success: 1,
-        results,
       });
     });
   },
@@ -547,6 +377,41 @@ module.exports = {
         success: 1,
         results: results,
       });
+    });
+  },
+
+  getQuoteDetails: (req, res) => {
+    const { id } = req.params;
+    getQuoteDetailsService(id, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: 0,
+          message: "Internal Server Error",
+        });
+      }
+      return res.status(200).json({
+        success: 1,
+        results: results,
+      });
+    });
+  },
+
+  updateQuotePrice: async (req, res) => {
+    const data = req.body.itemDetails;
+    for (const item of data) {
+      try {
+        await updateQuotePriceService(item, req.body.id);
+        console.log(`Updated unitprice for ID ${item.id}`);
+      } catch (error) {
+        console.error(
+          `Error updating unitprice for ID ${item.id}: ${error.message}`
+        );
+      }
+    }
+    return res.status(200).json({
+      success: 1,
+      message: "Updated Successfully",
     });
   },
 };

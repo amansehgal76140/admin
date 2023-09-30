@@ -92,82 +92,6 @@ module.exports = {
     );
   },
 
-  addSupplier: (data, addNewSupplierCallback) => {
-    pool.query(
-      `Insert into supplier values(?,?,?,?,?,?,?,?)`,
-      [
-        data.name,
-        data.email,
-        data.phone,
-        data.company_name,
-        data.country_name,
-        data.address,
-        data.supplierId,
-        data.fileName,
-      ],
-      (err, results, fields) => {
-        if (err) return addNewSupplierCallback(err);
-        return addNewSupplierCallback(null, results);
-      }
-    );
-  },
-
-  supplierDetails: (getSupplierDetailsCallback) => {
-    pool.query(`Select * From supplier`, [], (err, results, fields) => {
-      if (err) return getSupplierDetailsCallback(err);
-      return getSupplierDetailsCallback(null, results);
-    });
-  },
-
-  supplierEmails: (getSupplierEmailsCallback) => {
-    pool.query(`Select email from supplier`, [], (err, results, fields) => {
-      if (err) return getSupplierEmailsCallback(err);
-      return getSupplierEmailsCallback(null, results);
-    });
-  },
-
-  deleteSupplier: (supplierId, deleteSupplierCallback) => {
-    pool.query(
-      `Delete from supplier where supplierId = ?`,
-      [supplierId],
-      (err, results, fields) => {
-        if (err) return deleteSupplierCallback(err);
-        return deleteSupplierCallback(null, results);
-      }
-    );
-  },
-
-  updateSupplier: (data, updateSupplierDetailsCallback) => {
-    pool.query(
-      `Update supplier set name = ?, email = ?, phone = ?, company_name = ?, country_name = ?, address=? 
-      where supplierId = ?`,
-      [
-        data.name,
-        data.email,
-        data.phone,
-        data.company_name,
-        data.country_name,
-        data.address,
-        data.supplierId,
-      ],
-      (err, results, fields) => {
-        if (err) updateSupplierDetailsCallback(err);
-        updateSupplierDetailsCallback(null, results);
-      }
-    );
-  },
-
-  getSupplier: (supplierId, getSupplierCallback) => {
-    pool.query(
-      `Select * from supplier where supplierId = ?`,
-      [supplierId],
-      (err, results, fields) => {
-        if (err) return getSupplierCallback(err);
-        return getSupplierCallback(null, results);
-      }
-    );
-  },
-
   supplierQuoteDetailsService: (
     data,
     supplierQuoteDetailsControllerCallback
@@ -312,5 +236,29 @@ module.exports = {
         return getMaterialsCallback(null, results);
       }
     );
+  },
+
+  getQuoteDetailsService: (data, getQuoteDetailsCallback) => {
+    pool.query(
+      `Select r.itemId, unitPrice, description, size, quantity From requisitions r, supplierquoteDetails s where r.itemId = s.itemId and id = ?`,
+      [data],
+      (err, results, fields) => {
+        if (err) getQuoteDetailsCallback(err);
+        return getQuoteDetailsCallback(null, results);
+      }
+    );
+  },
+
+  updateQuotePriceService: (data, id) => {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `Update supplierquoteDetails set unitPrice = ? where itemId = ? and id = ?`,
+        [data.unitPrice, data.itemId, id],
+        (err, results, fields) => {
+          if (err) reject(err);
+          else resolve(results);
+        }
+      );
+    });
   },
 };
